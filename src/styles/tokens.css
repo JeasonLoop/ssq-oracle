@@ -1,0 +1,63 @@
+/* ============================================================
+ * SSQ Oracle 设计令牌 · 五哈希推演法
+ * 推导明细见 docs/DESIGN.md，改令牌先改文档
+ * ============================================================ */
+
+:root {
+  /* 色彩 · 赤文（Hash1）红球/主行动色 */
+  --red-400: hsl(8, 78%, 64%);
+  --red-500: hsl(8, 73%, 57%);
+  --red-600: hsl(8, 70%, 47%);
+
+  /* 色彩 · 靛青（Hash4）蓝球/信息色 */
+  --blue-400: hsl(211, 72%, 62%);
+  --blue-500: hsl(211, 68%, 55%);
+  --blue-600: hsl(211, 66%, 45%);
+
+  /* 描金（金域色相取自 Hash3 尾字节 1e → 42°） */
+  --gold: #c9a227;
+  --line: rgba(201, 162, 39, 0.22);
+
+  /* 几何 · 衡尺（Hash5） */
+  --radius-card: 14px;
+  --radius-ball: 999px;
+  --radius-pill: 22px;
+  --space-unit: 8px;
+
+  /* 动效 · 衡尺（Hash5） */
+  --dur-fast: 130ms;
+  --dur-mid: 320ms;
+  --dur-slow: 800ms;
+  --ease-oracle: cubic-bezier(0.6, -0.28, 0.735, 0.045);
+
+  /* 字体 */
+  --font-serif: 'Noto Serif SC', 'Songti SC', 'SimSun', serif;
+  --font-sans: 'Noto Sans SC', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  --font-num: 'DIN Alternate', 'Segoe UI', 'Arial', sans-serif;
+}
+
+/* 暗堂（默认） · 玄墨（Hash3） */
+:root {
+  --bg: #14100e;
+  --bg-raised: #1f1915;
+  --ink: #f0e6d2;
+  --ink-dim: #a89880;
+  --gold-soft: rgba(201, 162, 39, 0.08);
+  --ball-ink: #ffffff;
+  --shadow-soft: rgba(0, 0, 0, 0.30);
+  --shadow-inset: rgba(0, 0, 0, 0.25);
+}
+
+/* 明堂 · 素问（Hash2） */
+:root[data-theme='light'] {
+  --bg: #f6f1e6;
+  --bg-raised: #fffdf6;
+  --ink: #2b2016;
+  --ink-dim: #7a6a55;
+  --gold: #a07d1c;
+  --line: rgba(160, 125, 28, 0.25);
+  --gold-soft: rgba(160, 125, 28, 0.08);
+  --ball-ink: #ffffff;
+  --shadow-soft: rgba(43, 32, 22, 0.15);
+  --shadow-inset: rgba(43, 32, 22, 0.12);
+}

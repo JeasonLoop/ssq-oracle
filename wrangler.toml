@@ -1,0 +1,16 @@
+name = "ssq-oracle"
+main = "worker/src/index.js"
+compatibility_date = "2026-11-01"
+
+# 前端静态资源：vite build 产物由 Worker 托管
+[assets]
+directory = "./dist"
+binding = "ASSETS"
+not_found_handling = "single-page-application"
+
+[observability]
+enabled = true
+
+# 构建命令：部署时自动执行（CI 与本地 wrangler deploy 通用）
+[build]
+command = "npm run build"
