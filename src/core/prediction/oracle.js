@@ -151,12 +151,13 @@ function generateOne(ctx, cast) {
 export function oraclePredict(ctx, groupCount) {
   const now = ctx.now;
 
-  // 1. 干支标注
-  const ganzhi = {
-    year: yearGanzhi(now),
-    day: dayGanzhi(now),
-    hour: hourGanzhi(now),
-  };
+   // 1. 干支标注（附起局钟表时刻，方便核对时辰）
+   const hhmm = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+   const ganzhi = {
+     year: yearGanzhi(now),
+     day: dayGanzhi(now),
+     hour: `${hourGanzhi(now)}时（${hhmm} 起局）`,
+   };
 
   // 2. 心念起数：点击毫秒 mod 6（数由心起的触机）
   const heartbeat = now.getMilliseconds() % 6;

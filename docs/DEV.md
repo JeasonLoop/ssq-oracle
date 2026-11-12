@@ -1,7 +1,7 @@
 # SSQ Oracle 开发文档
 
 > 双色球娱乐预测平台 · 纯前端实现
-> 版本 v1.0 · 状态：设计定稿，待脚手架落地
+ > 版本 v1.1 · 状态：v1.0 已上线（CF Workers 自定义域名），v1.1 新增六大玩法
 
 ---
 
@@ -132,6 +132,77 @@ interface AlgoResult {
 
 ---
 
+ ### 1.5 今日一卦（每日运势签，`/today`）
+
+ | 项 | 规则 |
+ |---|---|
+ | 每日确定性 | 以本地日期字符串为种子（djb2 → mulberry32），同一天任何时间打开结果一致 |
+ | 签面内容 | 当日干支（复用 wuxing 引擎）、签文（上/中/平签）、吉时、吉色（引用 tokens 令牌名）、宜/忌（趣味化文案，不涉购彩诱导）、每日推荐 1 组号码（6+1，种子随机、不受锁定/排除影响） |
+ | 连签 | localStorage 记录 `lastDate/streak`：昨天来过 +1，否则重置为 1 |
+ | 存储 key | `ssq-oracle.fortune.v1` |
+
+ ### 1.6 卦签夹（存号对奖，`/picks`）
+
+ | 项 | 规则 |
+ |---|---|
+ | 收签 | 生成页每组结果可「收入卦签夹」，同组号码去重；存储 `{id, reds, blue, algo, savedAt}` |
+ | 对奖 | 与本地最新一期开奖对比：红球命中个数 + 蓝球是否命中，按双色球固定奖级判定——6+1 一等奖、6+0 二等奖、5+1 三等奖、5+0/4+1 四等奖、4+0/3+1 五等奖、含蓝即中六等奖（0/1/2+1），其余未中奖 |
+ | 管理 | 单签删除；纯本地存储 key `ssq-oracle.picks.v1` |
+
+ ### 1.7 命理盘算法（`destiny`，第三算法）
+
+ - **输入**：生日 `YYYY-MM-DD`（存偏好，`AlgoContext.birth`）。
+ - **生命灵数**：生日各位数字反复求和至 1–9；红/蓝球数字根等于灵数者加权 ×1.6（「本命数」）。
+ - **生肖**：公历年近似 `(年份 - 4) mod 12`（与 wuxing 年干支同口径），取地支五行。
+ - **星座**：按公历生日查 12 星座，四象归五行（火/土/风→木/水），得「星座主行」。
+ - **权重合成**：`shengkeWeight(生肖行, 号码行) × shengkeWeight(星座行, 号码行) × 本命数加成`，加权不放回抽样；锁定/排除照常生效。
+ - **叙事产出**：复用 `OracleReading` 结构——落宫位=生肖（附断语）、卦名=星座（附断语）、卦性由星座元素映射、五行旺衰以生肖行为日主；`OraclePanel` 兼容动爻/变卦缺省。
+
+ ### 1.8 遗漏与走势面板（历史页新增区块）
+
+ - 红球 1–33 / 蓝球 1–16 网格：当前遗漏、最大遗漏（45 期窗口），遗漏值分档着色。
+ - 和值走势：最近 45 期红球和值 SVG 折线（无图表库）。
+ - 汇总统计：平均和值、奇偶比、大小比（红球 01–16 小 / 17–33 大）、含连号期数占比。
+
+ ### 1.9 双盘对推（生成页开关）
+
+ - 开启后一次生成同时跑 `math` 与 `oracle`（各生成 groupCount 组），双列展示。
+ - 两盘共有的红球/蓝球描金高亮（`is-dual`），并汇总「双法同断」号码行。
+
+ ### 1.10 本地导入开奖（历史页）
+
+ - 文本域粘贴多行「期号 日期 红×6 蓝」，分隔符容错（空格/逗号/、/制表符），日期可缺省。
+ - 解析校验：期号 5–8 位数字、红球 6 个不重复且 1–33、蓝球 1–16；无效行反馈不导入。
+ - 合并进 localStorage key `ssq-oracle.draws.imported.v1`，**导入数据优先覆盖内置同期号**；`draws.json` 本体不变（遵守 schema 禁区）。
+ 
+ ### 1.11 今日诗签（`/today` 页新增区块，经用户同意的唯一在线功能）
+
+ | 项 | 规则 |
+ |---|---|
+ | 数据源 | [palemoky/chinese-poetry-api](https://github.com/palemoky/chinese-poetry-api) 免费在线实例（poetry.palemoky.com），`GET /api/poems/random?author=<诗人>`（在线实例为旧版接口，`type` 过滤不可用） |
+ | 代理架构 | **Worker 同源代理**：前端只请求 `GET /api/poetry/random`，由 CF Worker 边缘转发到上游——用户网络不接触第三方域名，国内可达性与 CORS 均由代理解决；Worker 侧随机轮换诗人（李白/杜甫/王维/李商隐/白居易/苏轼）保证选诗质量 |
+ | 降级兜底 | 上游失败/限流/超时（前端 6s）→ 回退 `src/core/poetry.js` 内置经典短诗（5 首），页面离线依旧完整可用 |
+ | 展示 | 今日一卦页「今日诗签」卡片：诗行（衬线）+ 「—— 唐·李白《无题》」署名，与卦签叙事互补 |
+ 
+ ### 1.12 今日黄历（`/today` 页新增区块，同源代理在线功能）
+
+ | 项 | 规则 |
+ |---|---|
+  | 数据源 | [36jxs 公益老黄历 API](https://www.36jxs.com/api/Commonweal/almanac)（`GET ?sun=YYYY-MM-DD`），aa1.cn 为同一接口的镜像聚合（api.aa1.cn/api/almanac）；[toolfk 老黄历](https://www.toolfk.com/api-detail/lunar) 为第三级备选（需 token，实测 https 证书 SNI 异常、无 token 返回空 data） |
+  | 代理架构 | Worker 同源代理 `GET /api/almanac?sun=`，**三上游 failover**（36jxs → aa1.cn → toolfk），CF 边缘按日缓存（max-age 6h）——黄历按天固定，缓存可显著降低上游压力；toolfk 的中文键返回在 Worker 侧 `fromToolfk()` 归一为 36jxs 形状，token 存 Worker Secret `TOOLFK_TOKEN`（未配置自动跳过） |
+ | 返回字段 | 归一化后：农历（LMonth/LDay/LYear 生肖）、宜 Yi / 忌 Ji、冲 Chong / 煞 SuiSha、建除十二神 JianShen、彭祖百忌 PengZu、吉神方位 ShenWei、日纳音 WuxingNaDay、节气 SolarTermName、节日 GJie/LJie |
+ | 降级兜底 | 两上游均故障（当前即如此）→ 回退本地干支引擎（wuxing.js）真实推演当日干支 + 今日一卦吉时宜忌，卡片标注「黄历服务暂歇，已切换本地推演」；不做假数据 |
+ 
+ ### 1.13 分享卡（今日一卦 / 生成页，html2canvas 导出图片）
+ 
+  | 项 | 规则 |
+  |---|---|
+  | 入口 | 今日一卦面板与生成页「推演结果 / 双盘对推」面板的「分享卡」按钮 → 弹窗预览 → 「导出图片」；导出逻辑抽公共工具 `core/exportCard.js` |
+  | 内容 | `kind='today'`：今日一签号码（Ball 组件）、签文、黄历要点（农历/宜/忌，无数据时该块整体隐藏）、诗签；`kind='generate'`：1–5 组号码（组一~组五标签）+ 盘面叙事摘要（卦名/动爻/落宫或星座生肖，数学期望无叙事时显示算法名）；**固定**站点二维码（qrcode.react `QRCodeCanvas`，指向 `window.location.origin`）+ 免责声明——二维码与免责为固定元素 |
+ | 导出 | `html2canvas` 动态 import（不占首屏包体），scale 2 倍、透明底，输出 `ssq-oracle-<日期>.png` 触发下载 |
+ | 取色 | 卡片全部引用 tokens 变量，跟随明暗主题，导出即所见；无任何硬编码色值 |
+ | 依赖 | html2canvas 1.4.1、qrcode.react 4.2.0（经用户同意引入） |
+ 
 ## 2. 技术架构
 
 ### 2.1 总体
@@ -144,7 +215,9 @@ src/
 ├── pages/
 │   ├── HistoryPage.tsx       # 往期号码
 │   ├── GeneratePage.tsx      # 号码生成（主页面）
-│   └── AboutPage.tsx         # 关于/免责声明
+ │   ├── AboutPage.tsx         # 关于/免责声明
+ │   ├── TodayPage.tsx         # 今日一卦（每日运势签）
+ │   └── PicksPage.tsx         # 卦签夹（存号对奖）
 ├── components/
 │   ├── Ball.tsx              # 红蓝球圆牌（全站复用）
 │   ├── DrawCard.tsx          # 单期开奖卡片
@@ -155,11 +228,14 @@ src/
 ├── core/
 │   ├── types.ts              # 领域类型
 │   ├── random.ts             # 种子化随机工具
-│   ├── history.ts            # 历史数据读取/查询
+ │   ├── history.ts            # 历史数据读取/查询（含本地导入合并）
+ │   ├── picks.ts              # 卦签夹存取与对奖
+ │   ├── fortune.ts            # 今日一卦（日期种子运势）
 │   ├── prediction/
 │   │   ├── index.ts          # 算法调度
 │   │   ├── math.ts           # 数学期望算法
-│   │   ├── oracle.ts         # 卦象算法管线
+ │   │   ├── oracle.ts         # 卦象算法管线
+ │   │   ├── numerology.ts     # 命理盘算法（生日灵数/生肖/星座）
 │   │   ├── liuren.ts         # 小六壬
 │   │   ├── gua.ts            # 梅花易数/64卦数据
 │   │   └── wuxing.ts         # 干支/五行生克
@@ -177,9 +253,11 @@ src/
 | 路径 | 页面 |
 |---|---|
 | `/` | 重定向到 `/generate` |
-| `/generate` | 号码生成 |
-| `/history` | 往期号码 |
-| `/about` | 免责声明 |
+ | `/generate` | 号码生成 |
+ | `/today` | 今日一卦 |
+ | `/picks` | 卦签夹（存号对奖） |
+ | `/history` | 往期号码 |
+ | `/about` | 免责声明 |
 
 ### 2.3 关键设计决策
 
@@ -208,6 +286,15 @@ interface SSQPick {
   reds: number[];       // 6 个升序红球
   blue: number;
 }
+
+ /** 卦签夹中收藏的一签 */
+ interface StoredPick {
+   id: string;         // 唯一标识
+   reds: number[];     // 6 个升序红球
+   blue: number;
+   algo: string;       // 生成算法 'math' | 'oracle' | 'destiny'
+   savedAt: string;    // 收藏时间 ISO 字符串
+ }
 
 /** 幸运号约束 */
 interface NumberLocks {

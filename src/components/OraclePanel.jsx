@@ -7,13 +7,13 @@ export default function OraclePanel({ reading }) {
   const { ganzhi, liurenPalace, liurenMeaning, guaName, guaText, guaTemper, wuxingWeights, movingLine, changedGuaName } = reading;
   return (
     <div className="oracle-panel">
-      <div className="oracle-gua">{guaName} · 动爻{['初', '二', '三', '四', '五', '上'][movingLine - 1]}</div>
+       <div className="oracle-gua">{guaName}{movingLine ? ` · 动爻${['初', '二', '三', '四', '五', '上'][movingLine - 1]}` : ''}</div>
       <div className="oracle-text" style={{ marginTop: 'calc(var(--space-unit) * 1)' }}>
         「{guaText}」—— 卦性{guaTemper}
         {changedGuaName ? `，变卦见 ${changedGuaName}` : ''}
       </div>
       <div style={{ marginTop: 'calc(var(--space-unit) * 2)' }}>
-        干支：{ganzhi.year}年 {ganzhi.day}日 {ganzhi.hour}时
+         干支：{ganzhi.year}年 {ganzhi.day}日{ganzhi.hour ? ` ${ganzhi.hour}` : ''}
       </div>
       <div>
         小六壬落宫：<strong style={{ color: 'var(--gold)' }}>{liurenPalace}</strong>

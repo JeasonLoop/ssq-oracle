@@ -1,4 +1,5 @@
 import { pad2 } from '../core/validate.js';
+ import { Lock, Ban } from 'lucide-react';
 
 /**
  * 幸运号编辑器
@@ -30,8 +31,9 @@ export default function LuckyEditor({
   return (
     <div>
       <div className="form-hint">
-        当前模式：
-        {mode === 'lock' ? '🔒 锁定（点击号码加入必出）' : '🚫 排除（点击号码从候选剔除）'}
+         {mode === 'lock'
+           ? <span><Lock size={12} /> 锁定（点击号码加入必出）</span>
+           : <span><Ban size={12} /> 排除（点击号码从候选剔除）</span>}
       </div>
 
       <div className="lucky-grid" style={{ marginTop: 'calc(var(--space-unit) * 2)' }}>

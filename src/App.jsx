@@ -5,6 +5,8 @@ import Splash from './components/Splash.jsx';
 import GeneratePage from './pages/GeneratePage.jsx';
 import HistoryPage from './pages/HistoryPage.jsx';
 import AboutPage from './pages/AboutPage.jsx';
+ import TodayPage from './pages/TodayPage.jsx';
+ import PicksPage from './pages/PicksPage.jsx';
 
 const THEME_KEY = 'ssq-oracle.theme';
 
@@ -33,6 +35,8 @@ export default function App() {
       {showSplash && <Splash onDone={() => setShowSplash(false)} />}
       <NavBar theme={theme} onToggleTheme={() => setTheme(theme === 'dark' ? 'light' : 'dark')} />
       <Routes>
+         <Route path="/today" element={<TodayPage />} />
+         <Route path="/picks" element={<PicksPage />} />
         <Route path="/" element={<Navigate to="/generate" replace />} />
         <Route path="/generate" element={<GeneratePage />} />
         <Route path="/history" element={<HistoryPage />} />

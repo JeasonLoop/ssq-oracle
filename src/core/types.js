@@ -20,6 +20,16 @@
  * @property {number[]} reds  6 个升序红球
  * @property {number} blue    蓝球
  */
+ 
+ /**
+  * 卦签夹中收藏的一签
+  * @typedef {Object} StoredPick
+  * @property {string} id      唯一标识
+  * @property {number[]} reds  6 个升序红球
+  * @property {number} blue    蓝球
+  * @property {string} algo    生成算法 'math' | 'oracle' | 'destiny'
+  * @property {string} savedAt 收藏时间 ISO 字符串
+  */
 
 /**
  * 幸运号约束（锁定 + 排除）
@@ -48,9 +58,9 @@
  * @property {SSQDraw[]} history    最近 45 期（降序）
  * @property {NumberLocks} locks    锁定号
  * @property {NumberLocks} excludes 排除号
- * @property {Date} now             起局时刻
- */
-
+  * @property {Date} now             起局时刻
+  * @property {string|null} [birth]  生日 YYYY-MM-DD，命理盘算法必填
+  */
 /**
  * 算法统一输出
  * @typedef {Object} AlgoResult
