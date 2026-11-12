@@ -27,6 +27,19 @@ npm run dev      # 开发服务器
 npm run build    # 生产构建
 ```
 
+## 部署（Cloudflare Worker）
+
+前端静态资源由 Worker 托管（SPA fallback），`/api/*` 预留后端路由：
+
+```bash
+npx wrangler deploy    # 构建并部署到 https://ssq-oracle.jeasonvan559.workers.dev
+```
+
+- 线上地址：https://ssq-oracle.jeasonvan559.workers.dev
+- 健康检查：`GET /api/health`
+- 后续后端服务：在 `worker/src/index.js` 的 `handleApi` 中扩展路由（见文件内 TODO）
+- 仓库：https://github.com/JeasonLoop/ssq-oracle
+
 ## 哈希设计种子（生成于 2025，Windows PowerShell RNGCrypto）
 
 ```text
