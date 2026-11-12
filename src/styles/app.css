@@ -165,10 +165,9 @@ body {
     box-shadow var(--dur-fast) ease;
 }
 
-.btn-primary:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 18px var(--shadow-soft);
-}
+ .btn-primary:hover {
+   box-shadow: 0 6px 18px var(--shadow-soft);
+ }
 
 .btn-primary:disabled {
   opacity: 0.5;
@@ -221,10 +220,9 @@ body {
   transition: transform var(--dur-fast) ease, border-color var(--dur-fast) ease;
 }
 
-.draw-card:hover {
-  transform: translateY(-2px);
-  border-color: var(--gold);
-}
+ .draw-card:hover {
+   border-color: var(--gold);
+ }
 
 .draw-meta {
   min-width: 128px;
